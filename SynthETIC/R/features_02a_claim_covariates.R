@@ -403,6 +403,8 @@ simulate_covariates <- function(
         if (exists(".Random.seed", .GlobalEnv, inherits = FALSE)) {
             old_seed <- .GlobalEnv$.Random.seed
             on.exit(.GlobalEnv$.Random.seed <- old_seed)
+        } else {
+            on.exit(rm(".Random.seed", envir = .GlobalEnv))
         }
         set.seed(random_seed)
     }
