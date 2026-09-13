@@ -36,3 +36,8 @@ jobs:
       - name: Reproducer
         shell: Rscript {0}
         run: source("tools/knife_edge_repro.R")
+      - name: Stream fingerprint (1e9 draws per sampler)
+        shell: bash
+        env:
+          N: 1e9
+        run: Rscript tools/stream_fingerprint.R
