@@ -1,16 +1,18 @@
-## Knife-edge probe: does qnorm differ across OSes at the draws that straddle
-## the s < 30 rejection threshold in claim_size()'s default sampler?
-BIG <- 134217728; M32 <- 2^32
-xstar <- 30^(1/5); m <- floor(pnorm((xstar - 9.5)/3) * BIG)
+## Knife-edge probe: evaluate the SAME reachable rnorm draws on every OS and
+## report each one's verdict in claim_size()'s `while (any(s < 30))` test.
+## m and the k window are hard-coded so all platforms probe identical inputs.
+BIG <- 134217728
+m   <- 813546
+kc  <- 1868573651
+ks  <- (kc - 400):(kc + 400)
 
-kc <- round((pnorm((xstar - 9.5)/3)*BIG - m) * M32)
-ks <- (kc - 400):(kc + 400)
-u  <- (m + ks*2^-32)/BIG
-s  <- (9.5 + 3*qnorm(u))^5
-sel <- which(abs(s - 30)/30 < 1e-13)
+u <- (m + ks * 2^-32) / BIG
+s <- (9.5 + 3 * qnorm(u))^5
 
 cat("OS:", Sys.info()[["sysname"]], "|", R.version.string, "\n")
-cat("candidates:", length(sel), "\n")
-cat("VERDICTS:", paste(as.integer(s[sel] < 30), collapse = ""), "\n")
-cat("DIGEST:", paste(sprintf("%a", s[sel]), collapse = " "), "\n")
-cat("CLOSEST:", sprintf("%a", s[sel][which.min(abs(s[sel] - 30))]), "\n")
+cat("VERDICTS:", paste(as.integer(s < 30), collapse = ""), "\n")
+cat("NREJECT:", sum(s < 30), "of", length(s), "\n")
+cat("BOUNDARY_K:", ks[which.min(abs(s - 30))], "\n")
+cat("BOUNDARY_S:", sprintf("%a", s[which.min(abs(s - 30))]), "\n")
+i <- seq(which.min(abs(s - 30)) - 2, which.min(abs(s - 30)) + 2)
+for (j in i) cat(sprintf("  k=%d s=%a %s\n", ks[j], s[j], ifelse(s[j] < 30, "REJECT", "accept")))
