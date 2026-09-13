@@ -28,6 +28,7 @@ jobs:
         with:
           working-directory: upstream/SynthETIC
       - name: Install upstream SynthETIC
+        shell: bash
         run: R CMD INSTALL upstream/SynthETIC
       - name: Probe
         shell: Rscript {0}
